@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "title": "Appearance",
+    "description": "Choose DSH color and conversation background presets. Keeps existing typography, layout and interactions unchanged."
+  },
+  "ui": {
+    "title": "Appearance",
+    "allThemes": "All themes",
+    "persistentBadge": "Permanent",
+    "appliedTheme": "Applied · {theme}",
+    "localPreview": "Preview only · Not applied",
+    "theme.light": "Light",
+    "theme.dark": "Dark",
+    "theme.system": "System",
+    "theme.breeze": "Green",
+    "theme.sea": "Sea",
+    "theme.sand": "Sand",
+    "theme.original": "Original",
+    "legacyAppearance": "Previous appearance settings",
+    "loadingShort": "Loading…",
+    "preview": "Theme colors and background thumbnail",
+    "previewIllustration": "Theme illustration, not a live Session; actual layout and cropping may differ",
+    "previewGreeting": "How can I help you?",
+    "previewPlaceholder": "Ask DeepSeek",
+    "livePreviewTitle": "Temporary appearance preview",
+    "livePreviewNotice": "Previewing {theme} — not saved",
+    "returnToEdit": "Back to Appearance",
+    "cancelPreview": "Cancel preview",
+    "saving": "Applying…",
+    "reload": "Reload",
+    "conflict": "Settings changed elsewhere. Your selection is kept. Reload before choosing another theme.",
+    "saveError": "Could not apply this theme. Your selection is kept; click the theme again to retry.",
+    "readOnly": "Read-only connection. Theme clicks update this page’s preview only and do not save.",
+    "disconnected": "Connection unavailable. Theme clicks update this preview only. Click again after reconnecting to apply.",
+    "invalidSaved": "The saved appearance is invalid and has not been applied. Choose a theme to repair it.",
+    "loading": "Loading appearance settings…",
+    "unavailable": "Appearance settings are unavailable. Check that the plugin is enabled and the connection is ready."
+  }
+}
