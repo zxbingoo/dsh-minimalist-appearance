@@ -1,6 +1,6 @@
 // Generated appearance 0.2.14. Edit src/client.js and shared modules instead.
 window.__ModuleLoader__.load({
-  id: 'dsh-appearance',
+  id: "dsh-minimalist-appearance",
   factory(require) {
     const React = require('react');
 // core.js

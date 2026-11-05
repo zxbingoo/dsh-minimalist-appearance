@@ -29,7 +29,7 @@ if (wallpaper.length > 4 * 1024 * 1024 || !wallpaper.subarray(0, 8).equals(Buffe
   throw new Error('Missing or invalid bundled watercolor artwork');
 }
 const assets = { breeze: `data:image/png;base64,${wallpaper.toString('base64')}` };
-const result = `// Generated appearance ${manifest.version}. Edit src/client.js and shared modules instead.\nwindow.__ModuleLoader__.load({\n  id: 'dsh-appearance',\n  factory(require) {\n    const React = require('react');\n${parts.join('\n')}\n    return createAppearancePlugin(React, ${JSON.stringify(dictionaries)}, ${JSON.stringify(assets)});\n  },\n});\n`;
-new vm.Script(result, { filename: 'dsh-appearance/client.js' }); // Syntax only; never emulate the DOM.
+const result = `// Generated appearance ${manifest.version}. Edit src/client.js and shared modules instead.\nwindow.__ModuleLoader__.load({\n  id: ${JSON.stringify(manifest.name)},\n  factory(require) {\n    const React = require('react');\n${parts.join('\n')}\n    return createAppearancePlugin(React, ${JSON.stringify(dictionaries)}, ${JSON.stringify(assets)});\n  },\n});\n`;
+new vm.Script(result, { filename: `${manifest.name}/client.js` }); // Syntax only; never emulate the DOM.
 await writeFile(new URL('client.js', root), result);
 console.log(`Built client.js (${Buffer.byteLength(result)} bytes)`);

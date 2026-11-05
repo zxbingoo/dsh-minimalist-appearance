@@ -1,13 +1,13 @@
 {
-  "name": "dsh-appearance",
+  "name": "dsh-minimalist-appearance",
   "version": "0.2.14",
   "private": true,
   "type": "module",
   "description": "Change DeepSeek Harness colors and backgrounds without changing its typography or layout.",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/zxbingoo/dsh-appearance.git" },
-  "homepage": "https://github.com/zxbingoo/dsh-appearance#readme",
-  "bugs": { "url": "https://github.com/zxbingoo/dsh-appearance/issues" },
+  "repository": { "type": "git", "url": "https://github.com/zxbingoo/dsh-minimalist-appearance.git" },
+  "homepage": "https://github.com/zxbingoo/dsh-minimalist-appearance#readme",
+  "bugs": { "url": "https://github.com/zxbingoo/dsh-minimalist-appearance/issues" },
   "keywords": ["dsh-plugin", "deepseek-harness", "theme", "appearance"],
   "exports": {
     ".": "./index.js",
@@ -15,7 +15,7 @@
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
-  "files": ["index.js", "core.js", "backgrounds.js", "client.js", "src/*.js", "assets/*.png", "build.mjs", "test/*.mjs", "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE"],
+  "files": ["index.js", "core.js", "backgrounds.js", "client.js", "src/*.js", "assets/*.png", "assets/README.md", "RELEASE_NOTES.md", "build.mjs", "test/*.mjs", "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE"],
   "peerDependencies": {
     "@deepseek-ai/schemastery": "~3.18.5"
   },

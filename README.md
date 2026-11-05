@@ -1,21 +1,24 @@
-# 外观 / Appearance
+# dsh-minimalist-appearance
+
+外观 / Appearance
 
 DSH 持久化外观插件。新增左侧「外观」入口，只覆盖颜色与对话背景，不改变原有字体、字号、字重、行高、间距、控件尺寸、消息结构或交互。
 
 ## 初版定版与安装
 
-首个公开定版为 **v0.2.14**，保留已验收的七种主题、壁纸和菜单适配。已针对 DSH **0.2.1-rc.5** 验证；其他版本尚未验证。纯逻辑及源策略回归为 **93/93 通过**，不将其当作跨平台视觉验收。
+首个公开定版为 **v0.2.14**，保留已验收的七种主题、壁纸和菜单适配。已针对 DSH **0.2.1-rc.5** 验证；其他版本尚未验证。纯逻辑、源策略及发行标识回归为 **96/96 通过**，不将其当作跨平台视觉验收。
 
-- 仓库：[zxbingoo/dsh-appearance](https://github.com/zxbingoo/dsh-appearance)。
-- 安装包：从 [v0.2.14 Release](https://github.com/zxbingoo/dsh-appearance/releases/tag/v0.2.14) 下载预构建 `.tgz`，或让 DSH 安装下方固定版本地址。
-- 这是 GitHub-only 发行；**不要用 npm 上的同名 `dsh-appearance` 包代替**，该 registry 名称属于另一项目。本包保留 `private: true` 防止误发 npm，不影响 GitHub 仓库公开或 `.tgz` 安装。
+- 仓库：[zxbingoo/dsh-minimalist-appearance](https://github.com/zxbingoo/dsh-minimalist-appearance)。
+- 安装包：从 [v0.2.14 Release](https://github.com/zxbingoo/dsh-minimalist-appearance/releases/tag/v0.2.14) 下载预构建 `.tgz`，或让 DSH 安装下方固定版本地址。
+- 发行包名为 `dsh-minimalist-appearance`，本次仅通过 GitHub Release 发行，保留 `private: true` 防止误发 npm。npm 上的旧名 `dsh-appearance` 属于另一项目，不是本插件。
+- 为兼容已验收版本，内部配置、面板及工具标识保持 `dsh-appearance` / `dsh_appearance`。不要在同一 profile 同时启用旧开发包与本发行包；这是新的发行包名，不承诺旧开发包的设置自动迁移：旧保存项可能包含旧包名断言。需要替换时，先通过受支持的插件管理与设置流程备份并确认迁移，不手改 profile。本次发布不会替换当前已安装的开发包。
 
 在 DSH 中使用原生插件管理器安装（不是在普通终端执行）：
 
 ```json
 {
   "action": "install_bundle",
-  "target": "https://github.com/zxbingoo/dsh-appearance/releases/download/v0.2.14/dsh-appearance-0.2.14.tgz"
+  "target": "https://github.com/zxbingoo/dsh-minimalist-appearance/releases/download/v0.2.14/dsh-minimalist-appearance-0.2.14.tgz"
 }
 ```
 
