@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "title": "外观",
+    "description": "选择 DSH 预设配色与对话背景，保留现有字体、布局和交互。"
+  },
+  "ui": {
+    "title": "外观",
+    "allThemes": "全部主题",
+    "persistentBadge": "永久有效",
+    "appliedTheme": "已应用 · {theme}",
+    "localPreview": "仅预览 · 未应用",
+    "theme.light": "浅色",
+    "theme.dark": "深色",
+    "theme.system": "跟随系统",
+    "theme.breeze": "绿色",
+    "theme.sea": "海蓝",
+    "theme.sand": "暖沙",
+    "theme.original": "原始",
+    "legacyAppearance": "之前的外观设置",
+    "loadingShort": "加载中…",
+    "preview": "主题配色与背景缩略图",
+    "previewIllustration": "主题外观示意，非实际会话；布局和裁切以真实对话为准",
+    "previewGreeting": "有什么可以帮你？",
+    "previewPlaceholder": "向 DeepSeek 提问",
+    "livePreviewTitle": "外观临时预览",
+    "livePreviewNotice": "正在预览「{theme}」，尚未保存",
+    "returnToEdit": "返回外观",
+    "cancelPreview": "取消预览",
+    "saving": "正在应用…",
+    "reload": "重新载入",
+    "conflict": "设置已在其他位置更新，当前选择已保留。请重新载入后再选择主题。",
+    "saveError": "应用失败，当前选择已保留。请再次点击主题重试。",
+    "readOnly": "当前连接为只读，点击主题仅更新本页预览，不会保存。",
+    "disconnected": "连接暂不可用，点击主题仅更新本页预览。重连后再次点击即可应用。",
+    "invalidSaved": "已保存外观无效，暂未应用。请选择一个主题修复。",
+    "loading": "正在加载外观设置…",
+    "unavailable": "外观设置暂不可用，请确认插件已启用且连接正常。"
+  }
+}
