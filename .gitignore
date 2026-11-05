@@ -1,0 +1,20 @@
+# Local-only artwork history; distribute only the accepted current artwork.
+/artwork-backups/
+
+# Local build/package artifacts and dependencies.
+/node_modules/
+/dist/
+/coverage/
+/.release/
+*.tgz
+*.log
+.DS_Store
+
+# Local settings and credentials never belong in the public source tree.
+.env
+.env.*
+!.env.example
+.npmrc
+.pnpmrc
+*.pem
+*.key
