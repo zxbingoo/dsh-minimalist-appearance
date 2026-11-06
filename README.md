@@ -4,13 +4,13 @@
 
 DSH 持久化外观插件。新增左侧「外观」入口，只覆盖颜色与对话背景，不改变原有字体、字号、字重、行高、间距、控件尺寸、消息结构或交互。
 
-## 当前源码更新（0.2.18，尚未创建 Release）
+## 当前版本（0.2.18）
 
 已同步开发版 0.2.15–0.2.18 的颜色兼容修复：30 项主题颜色、插件管理开关与定时卡片、文件预览、设置导航/停靠标签、加载更早按钮及推荐标识。新版提问卡使用 `[data-option-row]` / `[data-option-line]`，保留旧版路径；schemastery peer 支持已核对的 3.18 / 3.19 范围。
 
 插件管理页名称为「外观(dsh-minimalist-appearance)」，侧栏仍为「外观」。仅修改绘制，不改变字体、布局、选择/提交、滚动和已保存设置。当前运行环境 DSH 0.2.2-rc.1 的 Host/Client 加载与接口已核对，但真实页面视觉验收仍受认证限制；不能将源码测试当作全面视觉验收。
 
-本仓库保留 `dsh-minimalist-appearance` 发行身份、包名派生的浏览器 factory，以及原有 `dsh-appearance` / `dsh_appearance` 内部地址。此次仅更新 main 源码，不安装第二份插件、不迁移当前 profile、不覆盖 v0.2.14 tag 或发行包；下方固定安装链接仍指向旧发行版，并不包含此次更新。
+本仓库保留 `dsh-minimalist-appearance` 发行身份、包名派生的浏览器 factory，以及原有 `dsh-appearance` / `dsh_appearance` 内部地址。v0.2.18 安装包包含上述兼容修复及 B 配色。不安装第二份插件、不迁移当前 profile、不覆盖 v0.2.14 tag 或旧发行包。
 
 绿色浅色主题已采用确认后的 B 配色：正文从 `#34453D` 加深为 `#293D33`，次级文字从 `#78877D` 加深为 `#586D60`。壁纸原图和淡化值不变，不改字体、字号、字重或布局；其他预设和绿色深色配色保持不变。依赖主文字色计算的局部预览对比色随之重新配对。
 
@@ -21,7 +21,7 @@ DSH 持久化外观插件。新增左侧「外观」入口，只覆盖颜色与�
 首个公开定版为 **v0.2.14**，保留已验收的七种主题、壁纸和菜单适配。已针对 DSH **0.2.1-rc.5** 验证；其他版本尚未验证。纯逻辑、源策略及发行标识回归为 **96/96 通过**，不将其当作跨平台视觉验收。
 
 - 仓库：[zxbingoo/dsh-minimalist-appearance](https://github.com/zxbingoo/dsh-minimalist-appearance)。
-- 安装包：从 [v0.2.14 Release](https://github.com/zxbingoo/dsh-minimalist-appearance/releases/tag/v0.2.14) 下载预构建 `.tgz`，或让 DSH 安装下方固定版本地址。
+- 当前安装包：从 [v0.2.18 Release](https://github.com/zxbingoo/dsh-minimalist-appearance/releases/tag/v0.2.18) 下载包含兼容修复及 B 配色的预构建 `.tgz`，或让 DSH 安装下方固定版本地址。历史初版 v0.2.14 保持不变。
 - 发行包名为 `dsh-minimalist-appearance`，本次仅通过 GitHub Release 发行，保留 `private: true` 防止误发 npm。npm 上的旧名 `dsh-appearance` 属于另一项目，不是本插件。
 - 为兼容已验收版本，内部配置、面板及工具标识保持 `dsh-appearance` / `dsh_appearance`。不要在同一 profile 同时启用旧开发包与本发行包；这是新的发行包名，不承诺旧开发包的设置自动迁移：旧保存项可能包含旧包名断言。需要替换时，先通过受支持的插件管理与设置流程备份并确认迁移，不手改 profile。本次发布不会替换当前已安装的开发包。
 
@@ -30,7 +30,7 @@ DSH 持久化外观插件。新增左侧「外观」入口，只覆盖颜色与�
 ```json
 {
   "action": "install_bundle",
-  "target": "https://github.com/zxbingoo/dsh-minimalist-appearance/releases/download/v0.2.14/dsh-minimalist-appearance-0.2.14.tgz"
+  "target": "https://github.com/zxbingoo/dsh-minimalist-appearance/releases/download/v0.2.18/dsh-minimalist-appearance-0.2.18.tgz"
 }
 ```
 

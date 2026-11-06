@@ -1,3 +1,16 @@
+# v0.2.18 — DSH compatibility and clearer Green text
+
+- Includes the 0.2.15–0.2.18 theme compatibility repairs: scoped plugin-manager switches, schedule cards, file previews, settings navigation, docked tabs, history button and recommended badges.
+- Supports the audited DSH 0.2.2-rc.1 question option-row/option-line structure while retaining the older badge path; schemastery peer supports ~3.18.5 or ~3.19.0.
+- Green light palette uses approved B text colors: primary `#293D33`, secondary `#586D60`. Wallpaper and fade, fonts, sizes, weights, layout, other palettes and native interactions remain unchanged. Derived preview ink is recalculated for contrast.
+- Plugin Manager: 外观(dsh-minimalist-appearance); sidebar: 外观.
+- Build, syntax and 131 logic/source-policy/publication tests pass. Runtime interfaces and registrations were checked against DSH 0.2.2-rc.1 in the development install; full authenticated-page/cross-platform visual acceptance is not claimed.
+- Install archive: https://github.com/zxbingoo/dsh-minimalist-appearance/releases/download/v0.2.18/dsh-minimalist-appearance-0.2.18.tgz . Check SHA256SUMS beside the archive.
+- The package identity is dsh-minimalist-appearance; internal configuration/panel/tool addresses remain dsh-appearance / dsh_appearance. Do not enable it alongside the development package. Existing development settings with package assertions require a supported migration; publishing this release does not change the current profile.
+- GitHub-only distribution; no npm publication. Historical v0.2.14 tag and archive are not replaced. See COMPATIBILITY.md for upgrade checks and graceful fallback limits.
+
+---
+
 # v0.2.14 — Initial public release
 
 `dsh-minimalist-appearance` (外观 / Appearance) is a persistent DeepSeek Harness plugin for color and conversation-background presets. It preserves native typography, layout, controls, and interactions.

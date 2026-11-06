@@ -2,7 +2,7 @@
 
 ## 本次核对
 
-当前已安装运行时为 **0.2.2-rc.1**，不是对所有未来版本的兼容保证。本仓库发行包为 `dsh-minimalist-appearance`，已安装的开发包仍为 `dsh-appearance`，插件显示名为「外观(dsh-minimalist-appearance)」，侧栏显示「外观」。不迁移设置命名空间，本次同步至公开仓库 main，但不改写 v0.2.14 tag/发行包，也未发布新发行版。
+当前已安装运行时为 **0.2.2-rc.1**，不是对所有未来版本的兼容保证。本仓库发行包为 `dsh-minimalist-appearance`，已安装的开发包仍为 `dsh-appearance`，插件显示名为「外观(dsh-minimalist-appearance)」，侧栏显示「外观」。不迁移设置命名空间，v0.2.18 将兼容修复和已确认的 B 配色合入版本化安装包，不改写 v0.2.14 tag/发行包。发布不自动安装或迁移当前 profile。
 
 - Host 插件启用且 active；Client `shell.overlay` 存在外观视觉层；`dsh_appearance get` 可读取 revision 0 的既有绿色/浅色/forest/fade 0 设置。
 - Theme `getTheme`、`overrideTokens` 和 `theme/change` 仍支持现有接入方式，30 项全局颜色在当前 Theme Inspect 中仍存在。
