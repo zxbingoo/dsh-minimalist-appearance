@@ -10,7 +10,7 @@ test('publication identity resolves the renamed package while retaining the conf
   const manifest = JSON.parse(await text('package.json'));
   const patch = await text('cordis.patch.yml');
   assert.equal(manifest.name, 'dsh-minimalist-appearance');
-  assert.equal(manifest.version, '0.2.14');
+  assert.equal(manifest.version, '0.2.18');
   assert.equal(manifest.private, true);
   assert.equal(NS, 'dsh-appearance');
   assert.equal(patch.match(/^\s+- id: (.+)$/m)?.[1], NS);
@@ -38,6 +38,6 @@ test('a distribution rename does not rename native settings, panels, or the appe
   assert.match(client, /ctx\.configForms\.get\(NS\)/);
   assert.match(client, /name: 'main', key: NS/);
   assert.match(client, /name: 'sidebar\.panellist', id: NS/);
-  assert.ok(client.includes('id: `${NS}-visual-0.2.14`'));
+  assert.ok(client.includes('id: `${NS}-visual-0.2.18-chat-controls`'));
   assert.doesNotMatch(client, /dsh-minimalist-appearance/, 'package identity must not leak into compatibility ids');
 });

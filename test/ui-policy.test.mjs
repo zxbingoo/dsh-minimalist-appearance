@@ -126,33 +126,63 @@ test('local component repair is a no-op for native, accent-only and background-o
   }
 });
 
-test('changed-file and delivered-file fills rebind only scoped paint variables, not the static or semantic palette', () => {
+test('component compatibility retains an exact consumer-local paint allowlist', () => {
+  const expected = {
+    'body [data-changed-files]': {
+      '--changes-fill': 'var(--dsw-alias-bg-layer-1) !important',
+      '--changes-hover': 'var(--dsw-alias-interactive-bg-hover) !important',
+    },
+    'body [data-presented-file]': {
+      '--deliverable-fill': 'var(--dsw-alias-bg-layer-1) !important',
+      '--deliverable-hover': 'var(--dsw-alias-interactive-bg-hover) !important',
+    },
+    'body [data-composer-card]': {
+      '--dsw-specific-selector': 'var(--dsw-alias-bg-base) !important',
+      '--dsw-alias-interactive-bg-hover-solid': 'var(--dsw-alias-interactive-bg-hover) !important',
+    },
+    'body svg:has(#dsh-wordmark-badge-clip)': {
+      '--dsw-alias-label-primary-inverted': 'var(--dsw-alias-bg-base) !important',
+    },
+    'body [data-conversation-content]': {
+      '--dsw-alias-button-floating-fill': 'var(--dsw-alias-bg-layer-1) !important',
+      '--dsw-alias-button-floating-hover': 'var(--dsw-alias-interactive-bg-hover) !important',
+    },
+    'body [data-menu-material]': {
+      '--dsw-menu-surface-fill': 'var(--dsw-alias-bg-overlay) !important',
+      '--dsw-alias-menu-icon': 'var(--dsw-alias-label-primary) !important',
+      '--dsw-alias-menu-group-header-fill': 'color-mix(in srgb, var(--dsw-alias-bg-overlay) 94%, transparent) !important',
+    },
+    'body [data-tool="schedule_create"]': {
+      '--card-fill': 'var(--dsw-alias-bg-layer-1) !important',
+      '--card-hover': 'var(--dsw-alias-interactive-bg-hover) !important',
+    },
+  };
   for (const preset of ['original', 'forest', 'sea', 'sand']) {
     for (const mode of ['inherit', 'light', 'dark', 'system']) {
       if (preset === 'original' && mode === 'inherit') continue;
+      const switchSelector = [
+        'body [data-plugin-panel] [data-plugin-package] button[role="switch"][aria-checked="true"]',
+        'body [data-plugin-panel] [data-plugin-row] button[role="switch"][aria-checked="true"]',
+        'body [data-plugin-panel] [data-plugin-detail] > [data-window-drag] > div > div > button[role="switch"][aria-checked="true"]:last-child',
+      ].join(',\n');
+      // Default native/system scheme is light in this source-policy check.
+      // All preset dark accents and the base light accent choose black ink.
+      const ink = preset === 'original' || mode === 'dark' ? '#000000' : '#FFFFFF';
+      const expectedForState = {
+        ...expected,
+        [switchSelector]: { '--dsw-alias-label-primary-foreground': `${ink} !important` },
+      };
       const css = buildComponentCss(validateState({ preset, mode }));
       const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
-      assert.deepEqual(rules.map((rule) => rule[1].trim()), [
-        'body [data-changed-files]', 'body [data-presented-file]', 'body [data-composer-card]',
-        'body svg:has(#dsh-wordmark-badge-clip)', 'body [data-conversation-content]',
-        'body [data-menu-material]',
-      ]);
-      for (const [index, prefix] of ['changes', 'deliverable'].entries()) {
-        const declarations = Object.fromEntries([...rules[index][2].matchAll(/^\s*([-a-z0-9]+): (.+);$/gm)]
-          .map(([, property, value]) => [property, value]));
-        assert.deepEqual(declarations, {
-          [`--${prefix}-fill`]: 'var(--dsw-alias-bg-layer-1) !important',
-          [`--${prefix}-hover`]: 'var(--dsw-alias-interactive-bg-hover) !important',
-        });
+      assert.deepEqual(rules.map((rule) => rule[1].trim()), Object.keys(expectedForState));
+      for (const [, selector, body] of rules) {
+        const declarations = [...body.matchAll(/^\s*([-a-z0-9]+): (.+);$/gm)]
+          .map(([, property, value]) => [property, value]);
+        const allowed = expectedForState[selector.trim()];
+        assert.equal(declarations.length, Object.keys(allowed).length, 'no duplicate or extra declarations');
+        assert.deepEqual(Object.fromEntries(declarations), allowed);
+        assert.equal(body.replace(/^\s*([-a-z0-9]+): (.+);$/gm, '').trim(), '', 'only the listed custom paint properties');
       }
-      assert.match(rules[2][2], /^\s*--dsw-specific-selector: var\(--dsw-alias-bg-base\) !important;\s*--dsw-alias-interactive-bg-hover-solid: var\(--dsw-alias-interactive-bg-hover\) !important;\s*$/);
-      assert.match(rules[3][2], /^\s*--dsw-alias-label-primary-inverted: var\(--dsw-alias-bg-base\) !important;\s*$/);
-      const floating = Object.fromEntries([...rules[4][2].matchAll(/^\s*([-a-z0-9]+): (.+);$/gm)]
-        .map(([, property, value]) => [property, value]));
-      assert.deepEqual(floating, {
-        '--dsw-alias-button-floating-fill': 'var(--dsw-alias-bg-layer-1) !important',
-        '--dsw-alias-button-floating-hover': 'var(--dsw-alias-interactive-bg-hover) !important',
-      });
       assert.doesNotMatch(css, /--dsw-static-|--dsw-alias-(?:state|file-diff)-|data-ds-dark-theme|\.[a-zA-Z_-]|::/);
     }
   }
@@ -233,9 +263,11 @@ test('popup paint follows every effective theme without global menu overrides an
 
 test('popup repair remains CSS-only and its exact local rule is included in the distributed Client', async () => {
   const source = await text('backgrounds.js');
-  const component = source.match(/export function buildComponentCss\(state\) \{([\s\S]*?)\n\}/)?.[1];
+  const component = source.match(/export function buildComponentCss\(state,[^\n]+\) \{([\s\S]*?)\n\}/)?.[1];
   assert.ok(component, 'the compatibility repair stays in the existing component CSS builder');
-  assert.doesNotMatch(component, /\b(?:document|window)\s*\.|\b(?:MutationObserver|ResizeObserver|setTimeout|setInterval)\b|\.(?:addEventListener|removeEventListener|setAttribute|removeAttribute|appendChild)\s*\(|\bon(?:Click|Change|Input|KeyDown|MouseDown|PointerDown)\s*:|aria-|\brole\s*[:=]/, 'no DOM access, events, focus, menu state or accessibility rewrites');
+  // The exact allowlist above permits state/role selectors only under verified
+  // native switch owners; they are not JS accessibility-property writes.
+  assert.doesNotMatch(component, /\b(?:document|window)\s*\.|\b(?:MutationObserver|ResizeObserver|setTimeout|setInterval)\b|\.(?:addEventListener|removeEventListener|setAttribute|removeAttribute|appendChild)\s*\(|\bon(?:Click|Change|Input|KeyDown|MouseDown|PointerDown)\s*:|['"](?:aria-[\w-]+|role)['"]\s*:|\brole\s*:/, 'no DOM access, events, focus, menu state or accessibility rewrites');
   const css = buildComponentCss(validateState({ preset: 'forest', mode: 'light' }));
   const repair = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].find(([, selector]) => selector.trim() === 'body [data-menu-material]')?.[0].trim();
   assert.ok(repair, 'the shared material repair must exist before checking the build');
@@ -346,10 +378,34 @@ test('the live visual layer includes scoped component paint and uses the manifes
   const source = await text('src/client.js');
   const manifest = JSON.parse(await text('package.json'));
   assert.match(source, /import\s*\{[^}]*\bbuildComponentCss\b[^}]*\}\s*from ['"]\.\.\/backgrounds\.js['"]/);
-  assert.match(source, /buildBackgroundCss\(state,[^\n]+buildChromeCss\(state\), buildComponentCss\(state\)/);
-  assert.ok(source.includes('id: `${NS}-visual-' + manifest.version + '`'));
+  assert.match(source, /buildBackgroundCss\(state,[^\n]+buildChromeCss\(state\), buildComponentCss\(state, \{ nativeDark, systemDark: dark \}\)/);
+  assert.match(source, /import\s*\{[^}]*\bbuildFilePreviewCss\b[^}]*\}\s*from ['"]\.\.\/backgrounds\.js['"]/);
+  assert.match(source, /buildFilePreviewCss\(state, \{ nativeDark, systemDark: dark \}\)/);
+  assert.match(source, /import\s*\{[^}]*\bbuildNavigationCss\b[^}]*\}\s*from ['"]\.\.\/backgrounds\.js['"]/);
+  assert.match(source, /buildNavigationCss\(state\)/);
+  assert.match(source, /import\s*\{[^}]*\bbuildHistoryCss\b[^}]*\}\s*from ['"]\.\.\/backgrounds\.js['"]/);
+  assert.match(source, /buildHistoryCss\(state\)/);
+  assert.match(source, /import\s*\{[^}]*\bbuildQuestionBadgeCss\b[^}]*\}\s*from ['"]\.\.\/backgrounds\.js['"]/);
+  assert.match(source, /buildQuestionBadgeCss\(state\)/);
+  assert.ok(source.includes('id: `${NS}-visual-' + manifest.version + '-chat-controls`'));
   const markers = [...source.matchAll(/'data-dsha-version': '([^']+)'/g)].map((match) => match[1]);
   assert.deepEqual(markers, [manifest.version, manifest.version]);
+});
+
+test('distributed Client retains the exact chat-control builders and current shared paint wiring', async () => {
+  // Static source/build parity only; do not execute a simulated Client or DOM.
+  const [shared, source, compiled, manifestText] = await Promise.all([
+    text('backgrounds.js'), text('src/client.js'), text('client.js'), text('package.json'),
+  ]);
+  const manifest = JSON.parse(manifestText);
+  assert.ok(compiled.startsWith(`// Generated appearance ${manifest.version}.`));
+  for (const name of ['buildHistoryCss', 'buildQuestionBadgeCss']) {
+    const definition = shared.match(new RegExp(`^export function ${name}\\(state\\) \\{[\\s\\S]*?^\\}`, 'm'))?.[0];
+    assert.ok(definition, `${name} remains a pure single-argument shared builder`);
+    assert.equal(compiled.split(definition.replace(/^export /, '')).length - 1, 1, `${name} is shipped once, unchanged`);
+  }
+  const inline = source.replace(/^import .*;\r?\n/gm, '').replace(/^export (?=(?:const|function)\b)/gm, '');
+  assert.ok(compiled.includes(inline), 'the shipped consumer matches the complete current source Client');
 });
 
 test('settings illustrations and thumbnails retain the exact shared palette and wallpaper paint', async () => {
@@ -609,6 +665,11 @@ test('metadata is bilingual and all linked distribution resources exist', async 
   const en = JSON.parse(await text('locale/en.json'));
   const zh = JSON.parse(await text('locale/zh.json'));
   assert.deepEqual(Object.keys(en.ui).sort(), Object.keys(zh.ui).sort());
+  assert.equal(zh.meta.title, '外观(dsh-minimalist-appearance)');
+  assert.equal(en.meta.title, 'Appearance(dsh-minimalist-appearance)');
+  assert.equal(zh.ui.title, '外观', 'Chinese sidebar keeps the short name independently of plugin metadata');
+  assert.equal(en.ui.title, 'Appearance', 'English sidebar keeps the short name independently of plugin metadata');
+  assert.equal(manifest.name, 'dsh-minimalist-appearance', 'display-only rename preserves the installed package identity');
   assert.equal(zh.ui['theme.breeze'], '绿色');
   assert.equal(en.ui['theme.breeze'], 'Green');
   for (const resource of [en, zh]) {

@@ -12,12 +12,16 @@ import {
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
 const TOKEN_NAMES = [
   '--dsw-alias-bg-base', '--dsw-specific-sidebar-fill',
-  '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2', '--dsw-alias-bg-overlay',
-  '--dsw-specific-input-major', '--dsw-specific-bubble', '--dsw-specific-menu', '--dsw-alias-markdown-code-block',
-  '--dsw-alias-bg-module-platform', '--dsw-alias-interactive-bg-hover',
+  '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2', '--dsw-alias-bg-layer-3', '--dsw-alias-bg-overlay',
+  '--dsw-specific-input-major', '--dsw-specific-bubble', '--dsw-specific-menu',
+  '--dsw-alias-markdown-code-block', '--dsw-alias-markdown-code-block-banner', '--dsw-alias-markdown-inline-code',
+  '--dsw-alias-bg-module-platform', '--dsw-alias-interactive-bg-hover', '--dsw-alias-interactive-bg-active',
+  '--dsw-alias-button-ghost-active-fill', '--dsw-alias-button-ghost-active-border',
+  '--dsw-alias-button-tool-bar-fill', '--dsw-alias-button-tool-bar-hover',
   '--dsw-alias-border-l1', '--dsw-alias-border-l2', '--dsw-alias-border-l3', '--dsw-alias-border-l4',
   '--dsw-alias-label-primary', '--dsw-alias-label-secondary',
-  '--dsw-alias-label-tertiary', '--dsw-alias-label-caption', '--dsw-alias-brand-primary',
+  '--dsw-alias-label-tertiary', '--dsw-alias-label-caption', '--dsw-alias-label-dimmed',
+  '--dsw-alias-brand-primary', '--dsw-alias-switch-thumb',
 ].sort();
 
 function raster(mime, size) {
@@ -256,14 +260,23 @@ test('explicit light replaces native-dark composer, bubble, menu, tool, hover an
     '--dsw-specific-bubble': 'nested',
     '--dsw-specific-menu': 'surface',
     '--dsw-alias-markdown-code-block': 'surface',
+    '--dsw-alias-markdown-code-block-banner': 'nested',
+    '--dsw-alias-markdown-inline-code': 'nested',
+    '--dsw-alias-bg-layer-3': 'surface',
     '--dsw-alias-bg-module-platform': 'nested',
     '--dsw-alias-interactive-bg-hover': 'nested',
+    '--dsw-alias-interactive-bg-active': 'border',
+    '--dsw-alias-button-ghost-active-fill': 'nested',
+    '--dsw-alias-button-ghost-active-border': 'secondary',
+    '--dsw-alias-button-tool-bar-fill': 'surface',
+    '--dsw-alias-button-tool-bar-hover': 'nested',
     '--dsw-alias-border-l3': 'border',
     '--dsw-alias-border-l4': 'border',
     '--dsw-alias-label-tertiary': 'secondary',
     '--dsw-alias-label-caption': 'secondary',
+    '--dsw-alias-label-dimmed': 'secondary',
   };
-  assert.equal(TOKEN_NAMES.length, 20);
+  assert.equal(TOKEN_NAMES.length, 30);
   for (const preset of ['original', 'forest', 'sea', 'sand']) {
     const palette = preset === 'original' ? BASE_PALETTE : PALETTES[preset];
     const automatic = buildTokenOverrides({ preset, mode: 'system' });

@@ -1,5 +1,5 @@
 import { NS, DEFAULTS, validateState, resolveTokenModes } from '../core.js';
-import { buildBackgroundCss, buildChromeCss, buildComponentCss } from '../backgrounds.js';
+import { buildBackgroundCss, buildChromeCss, buildComponentCss, buildFilePreviewCss, buildNavigationCss, buildHistoryCss, buildQuestionBadgeCss } from '../backgrounds.js';
 import { sameAppearance, decodeSaved, THEME_CHOICES, themeChoiceId, chooseTheme } from './editor.js';
 import { PAGE_CSS } from './styles.js';
 import { createThemePreview } from './preview.js';
@@ -98,10 +98,11 @@ export function createAppearancePlugin(React, dictionaries, assets = {}) {
         const nativeDark = theme.active.colorScheme === 'dark';
         const nativeBase = theme.active.tokens['--dsw-alias-bg-base'];
         const css = React.useMemo(() => state ? [
-          buildBackgroundCss(state, assets, { nativeDark, systemDark: dark, nativeBase }), buildChromeCss(state), buildComponentCss(state),
+          buildBackgroundCss(state, assets, { nativeDark, systemDark: dark, nativeBase }), buildChromeCss(state), buildComponentCss(state, { nativeDark, systemDark: dark }),
+          buildFilePreviewCss(state, { nativeDark, systemDark: dark }), buildNavigationCss(state), buildHistoryCss(state), buildQuestionBadgeCss(state),
         ].filter(Boolean).join('\n') : '', [state, nativeDark, dark, nativeBase]);
         return h(React.Fragment, null,
-          css && h('style', { 'data-dsha-background': '', 'data-dsha-version': '0.2.14' }, css),
+          css && h('style', { 'data-dsha-background': '', 'data-dsha-version': '0.2.18' }, css),
           preview && h(React.Fragment, null,
             h('style', null, PAGE_CSS),
             h('aside', { className: 'dsha-live-notice', 'aria-label': t('livePreviewTitle') },
@@ -161,7 +162,7 @@ export function createAppearancePlugin(React, dictionaries, assets = {}) {
           h('span', { className: 'dsha-theme-thumb', 'aria-hidden': true }, h(ThemePreview, { variant: 'thumbnail', state: cardState, assets, t, nativeDark, systemDark, nativeBase, nativeTokens })),
           h('span', { className: 'dsha-card-name' }, name));
         }
-        return h('section', { className: 'dsha-panel', 'data-dsha-version': '0.2.14', 'aria-label': t('title'), 'aria-busy': busy },
+        return h('section', { className: 'dsha-panel', 'data-dsha-version': '0.2.18', 'aria-label': t('title'), 'aria-busy': busy },
           h('style', null, PAGE_CSS),
           h('div', { className: 'dsha-content' },
             h(ThemePreview, { variant: 'stage', state, assets, t, nativeDark, systemDark, nativeBase, nativeTokens, badge }),
@@ -181,7 +182,7 @@ export function createAppearancePlugin(React, dictionaries, assets = {}) {
       }
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: NS }, AppearancePage));
       ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: NS, order: 20, label: () => translate('title') }, PaletteIcon));
-      ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: `${NS}-visual-0.2.14` }, VisualLayer));
+      ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: `${NS}-visual-0.2.18-chat-controls` }, VisualLayer));
     },
   };
 }

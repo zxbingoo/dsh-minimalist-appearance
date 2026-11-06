@@ -189,23 +189,32 @@ export const PALETTES = Object.freeze({
   }),
 });
 
-// Baseline names come from Theme Inspect. Additional neutral aliases are
-// confirmed consumers in installed 0.2.1-rc.5: ui-theme neutral aliases,
-// InputBar input-major, Chat user bubble, ToolDetails code-block fill,
-// and TodoPanel/QueueDock menu fill.
-// Explicit light/dark must not leave these surfaces native-dark.
+// Baseline names come from Theme Inspect. Additional color consumers are
+// confirmed in DSH 0.2.1-rc.5 and its matching public ui-primitives package:
+// SegmentedTabs/Tag/settings fields (layer-3), Markdown inline code and code
+// banners, Pill/calendar selections, Button pressed/toolbar fills and Input
+// placeholders. Explicit modes must not leave these neutral paints native-dark.
+// Status/diff/syntax colors, native preferences and typography stay untouched.
 const COLOR_TOKEN_FIELDS = Object.freeze({
   '--dsw-alias-bg-base': 'base',
   '--dsw-specific-sidebar-fill': 'sidebar',
   '--dsw-alias-bg-layer-1': 'surface',
   '--dsw-alias-bg-layer-2': 'nested',
+  '--dsw-alias-bg-layer-3': 'surface',
   '--dsw-alias-bg-overlay': 'surface',
   '--dsw-specific-input-major': 'surface',
   '--dsw-specific-menu': 'surface',
   '--dsw-specific-bubble': 'nested',
   '--dsw-alias-markdown-code-block': 'surface',
+  '--dsw-alias-markdown-code-block-banner': 'nested',
+  '--dsw-alias-markdown-inline-code': 'nested',
   '--dsw-alias-bg-module-platform': 'nested',
   '--dsw-alias-interactive-bg-hover': 'nested',
+  '--dsw-alias-interactive-bg-active': 'border',
+  '--dsw-alias-button-ghost-active-fill': 'nested',
+  '--dsw-alias-button-ghost-active-border': 'secondary',
+  '--dsw-alias-button-tool-bar-fill': 'surface',
+  '--dsw-alias-button-tool-bar-hover': 'nested',
   '--dsw-alias-border-l1': 'border',
   '--dsw-alias-border-l2': 'border',
   '--dsw-alias-border-l3': 'border',
@@ -214,6 +223,7 @@ const COLOR_TOKEN_FIELDS = Object.freeze({
   '--dsw-alias-label-secondary': 'secondary',
   '--dsw-alias-label-tertiary': 'secondary',
   '--dsw-alias-label-caption': 'secondary',
+  '--dsw-alias-label-dimmed': 'secondary',
   '--dsw-alias-brand-primary': 'accent',
 });
 
@@ -228,6 +238,12 @@ export function buildTokenOverrides(input) {
     for (const [token, field] of Object.entries(COLOR_TOKEN_FIELDS)) {
       overrides[token] = { light: palette.light[field], dark: palette.dark[field] };
     }
+    // label-primary-foreground also inks fixed semantic StateDot steps. Keep it
+    // and the native primary-button hover pair out of the global neutral layer;
+    // backgrounds.js isolates the actual-accent ink to owned plugin switches.
+    // Switch(off) has its own neutral thumb. Retain the native light raised /
+    // dark muted distinction, rather than pairing two near-identical surfaces.
+    overrides['--dsw-alias-switch-thumb'] = { light: palette.light.surface, dark: palette.dark.secondary };
   }
   if (state.accent) {
     overrides['--dsw-alias-brand-primary'] = { light: state.accent, dark: state.accent };

@@ -1,4 +1,4 @@
-// Generated appearance 0.2.14. Edit src/client.js and shared modules instead.
+// Generated appearance 0.2.18. Edit src/client.js and shared modules instead.
 window.__ModuleLoader__.load({
   id: "dsh-minimalist-appearance",
   factory(require) {
@@ -195,23 +195,32 @@ const PALETTES = Object.freeze({
   }),
 });
 
-// Baseline names come from Theme Inspect. Additional neutral aliases are
-// confirmed consumers in installed 0.2.1-rc.5: ui-theme neutral aliases,
-// InputBar input-major, Chat user bubble, ToolDetails code-block fill,
-// and TodoPanel/QueueDock menu fill.
-// Explicit light/dark must not leave these surfaces native-dark.
+// Baseline names come from Theme Inspect. Additional color consumers are
+// confirmed in DSH 0.2.1-rc.5 and its matching public ui-primitives package:
+// SegmentedTabs/Tag/settings fields (layer-3), Markdown inline code and code
+// banners, Pill/calendar selections, Button pressed/toolbar fills and Input
+// placeholders. Explicit modes must not leave these neutral paints native-dark.
+// Status/diff/syntax colors, native preferences and typography stay untouched.
 const COLOR_TOKEN_FIELDS = Object.freeze({
   '--dsw-alias-bg-base': 'base',
   '--dsw-specific-sidebar-fill': 'sidebar',
   '--dsw-alias-bg-layer-1': 'surface',
   '--dsw-alias-bg-layer-2': 'nested',
+  '--dsw-alias-bg-layer-3': 'surface',
   '--dsw-alias-bg-overlay': 'surface',
   '--dsw-specific-input-major': 'surface',
   '--dsw-specific-menu': 'surface',
   '--dsw-specific-bubble': 'nested',
   '--dsw-alias-markdown-code-block': 'surface',
+  '--dsw-alias-markdown-code-block-banner': 'nested',
+  '--dsw-alias-markdown-inline-code': 'nested',
   '--dsw-alias-bg-module-platform': 'nested',
   '--dsw-alias-interactive-bg-hover': 'nested',
+  '--dsw-alias-interactive-bg-active': 'border',
+  '--dsw-alias-button-ghost-active-fill': 'nested',
+  '--dsw-alias-button-ghost-active-border': 'secondary',
+  '--dsw-alias-button-tool-bar-fill': 'surface',
+  '--dsw-alias-button-tool-bar-hover': 'nested',
   '--dsw-alias-border-l1': 'border',
   '--dsw-alias-border-l2': 'border',
   '--dsw-alias-border-l3': 'border',
@@ -220,6 +229,7 @@ const COLOR_TOKEN_FIELDS = Object.freeze({
   '--dsw-alias-label-secondary': 'secondary',
   '--dsw-alias-label-tertiary': 'secondary',
   '--dsw-alias-label-caption': 'secondary',
+  '--dsw-alias-label-dimmed': 'secondary',
   '--dsw-alias-brand-primary': 'accent',
 });
 
@@ -234,6 +244,12 @@ function buildTokenOverrides(input) {
     for (const [token, field] of Object.entries(COLOR_TOKEN_FIELDS)) {
       overrides[token] = { light: palette.light[field], dark: palette.dark[field] };
     }
+    // label-primary-foreground also inks fixed semantic StateDot steps. Keep it
+    // and the native primary-button hover pair out of the global neutral layer;
+    // backgrounds.js isolates the actual-accent ink to owned plugin switches.
+    // Switch(off) has its own neutral thumb. Retain the native light raised /
+    // dark muted distinction, rather than pairing two near-identical surfaces.
+    overrides['--dsw-alias-switch-thumb'] = { light: palette.light.surface, dark: palette.dark.secondary };
   }
   if (state.accent) {
     overrides['--dsw-alias-brand-primary'] = { light: state.accent, dark: state.accent };
@@ -332,9 +348,20 @@ function buildBackgroundCss(state, assets = {}, environment = {}) {
   return `${frame} {\n  background-image: ${paint.backgroundImage} !important;\n  background-size: ${paint.backgroundSize};\n  background-position: ${paint.backgroundPosition};\n  background-repeat: ${paint.backgroundRepeat};\n}\n${frame} [data-conversation-content],\n${frame} [data-conversation-scroll],\n${frame} [data-composer-seat] {\n  background-color: transparent !important;\n  background-image: none !important;\n}`;
 }
 
-/** Rebind only source-confirmed local fills that bypass the native aliases. */
-function buildComponentCss(state) {
+// Input comes from validated, resolved brand-primary, never arbitrary CSS.
+function accentForeground(accent) {
+  const channels = accent.slice(1).match(/../g).map((pair) => Number.parseInt(pair, 16) / 255);
+  const linear = channels.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+  return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? '#000000' : '#FFFFFF';
+}
+
+/** Rebind only source-confirmed, owner-local paints that bypass native aliases. */
+function buildComponentCss(state, { nativeDark = false, systemDark = nativeDark } = {}) {
   if (!state || !Object.hasOwn(buildTokenOverrides(state), '--dsw-alias-bg-layer-1')) return '';
+  if (typeof nativeDark !== 'boolean') throw new TypeError('nativeDark must be a boolean');
+  const accent = resolveTokenModes(state, systemDark)['--dsw-alias-brand-primary'][nativeDark ? 'dark' : 'light'];
+  const switchForeground = accentForeground(accent);
   // DSH 0.2.1-rc.5 ChangedFiles and Deliverables hard-code static neutrals
   // in local variables selected by the native body dark attribute. Our mode
   // must follow the effective token palette instead. Override only these
@@ -356,8 +383,137 @@ function buildComponentCss(state) {
   // material boundary so the native rows, hover, checks, border and text keep
   // consuming the effective aliases. Keep pinned group headers 94% opaque.
   // The macOS backing already uses bg-base; do not touch its anchor or blur.
+  // ScheduleCreateCard also hard-codes two static neutral fills by the native
+  // body scheme. Its own data-tool boundary is stable across card states; keep
+  // the open button, clock tile, focus, title and frequency entirely native.
+  // Switch(on) shares label-primary-foreground with primary Button and semantic
+  // StateDot steps. Never override that alias globally: done steps retain a
+  // fixed success fill, so accent-derived ink there could destroy contrast.
+  // PluginManagerPage's package/row hooks own only its native enable switches;
+  // the detail header's direct child chain plus last-child selects its trailing
+  // enable switch, not preceding action contributions or bundle configuration.
+  // Bind on the checked button alone, not its owner
+  // container or sibling status markers. Off thumbs keep their own alias.
   // Bounded !important wins at the local declaration regardless of CSS order.
-  return `body [data-changed-files] {\n  --changes-fill: var(--dsw-alias-bg-layer-1) !important;\n  --changes-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-presented-file] {\n  --deliverable-fill: var(--dsw-alias-bg-layer-1) !important;\n  --deliverable-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-composer-card] {\n  --dsw-specific-selector: var(--dsw-alias-bg-base) !important;\n  --dsw-alias-interactive-bg-hover-solid: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody svg:has(#dsh-wordmark-badge-clip) {\n  --dsw-alias-label-primary-inverted: var(--dsw-alias-bg-base) !important;\n}\nbody [data-conversation-content] {\n  --dsw-alias-button-floating-fill: var(--dsw-alias-bg-layer-1) !important;\n  --dsw-alias-button-floating-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-menu-material] {\n  --dsw-menu-surface-fill: var(--dsw-alias-bg-overlay) !important;\n  --dsw-alias-menu-icon: var(--dsw-alias-label-primary) !important;\n  --dsw-alias-menu-group-header-fill: color-mix(in srgb, var(--dsw-alias-bg-overlay) 94%, transparent) !important;\n}`;
+  return `body [data-changed-files] {\n  --changes-fill: var(--dsw-alias-bg-layer-1) !important;\n  --changes-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-presented-file] {\n  --deliverable-fill: var(--dsw-alias-bg-layer-1) !important;\n  --deliverable-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-composer-card] {\n  --dsw-specific-selector: var(--dsw-alias-bg-base) !important;\n  --dsw-alias-interactive-bg-hover-solid: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody svg:has(#dsh-wordmark-badge-clip) {\n  --dsw-alias-label-primary-inverted: var(--dsw-alias-bg-base) !important;\n}\nbody [data-conversation-content] {\n  --dsw-alias-button-floating-fill: var(--dsw-alias-bg-layer-1) !important;\n  --dsw-alias-button-floating-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-menu-material] {\n  --dsw-menu-surface-fill: var(--dsw-alias-bg-overlay) !important;\n  --dsw-alias-menu-icon: var(--dsw-alias-label-primary) !important;\n  --dsw-alias-menu-group-header-fill: color-mix(in srgb, var(--dsw-alias-bg-overlay) 94%, transparent) !important;\n}\nbody [data-tool="schedule_create"] {\n  --card-fill: var(--dsw-alias-bg-layer-1) !important;\n  --card-hover: var(--dsw-alias-interactive-bg-hover) !important;\n}\nbody [data-plugin-panel] [data-plugin-package] button[role="switch"][aria-checked="true"],\nbody [data-plugin-panel] [data-plugin-row] button[role="switch"][aria-checked="true"],\nbody [data-plugin-panel] [data-plugin-detail] > [data-window-drag] > div > div > button[role="switch"][aria-checked="true"]:last-child {\n  --dsw-alias-label-primary-foreground: ${switchForeground} !important;\n}`;
+}
+
+// DSH 0.2.1-rc.5 ui-theme file-diff and Shiki seeds. These stay local to
+// file previews: no static palette, global syntax, status or native-mode writes.
+const PREVIEW_DIFF = Object.freeze({
+  light: Object.freeze({
+    'added-bg': '#E6F4E7', 'added-gutter': '#EDF7ED', 'added-marker': '#01A241',
+    'deleted-bg': '#FCE6E2', 'deleted-gutter': '#FDECE9', 'deleted-marker': '#BA2723',
+  }),
+  dark: Object.freeze({
+    'added-bg': '#1F3124', 'added-gutter': '#132016', 'added-marker': '#41C977',
+    'deleted-bg': '#3C1F1B', 'deleted-gutter': '#28130E', 'deleted-marker': '#FA423E',
+  }),
+});
+const PREVIEW_SYNTAX = Object.freeze({
+  light: Object.freeze({
+    constant: '#1C7ED6', string: '#2F9E44', comment: '#868E96', keyword: '#D6336C',
+    parameter: '#E8590C', function: '#6741D9', 'string-expression': '#2B8A3E',
+    punctuation: '#495057', link: '#1971C2',
+  }),
+  dark: Object.freeze({
+    constant: '#4DABF7', string: '#69DB7C', comment: '#ADB5BD', keyword: '#FAA2C1',
+    parameter: '#FFA94D', function: '#B197FC', 'string-expression': '#8CE99A',
+    punctuation: '#CED4DA', link: '#74C0FC',
+  }),
+});
+
+// Keep native hues when readable; otherwise make the smallest 1% sRGB move
+// toward the effective primary ink that reaches 4.5:1 on every known paint.
+// This computes colors only, not a renderer or a promise about authored content.
+function readablePreviewInk(seed, primary, backgrounds) {
+  const rgb = (hex) => hex.slice(1).match(/../g).map((pair) => Number.parseInt(pair, 16));
+  const luminance = (channels) => channels.map((byte) => {
+    const value = byte / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+  const from = rgb(seed);
+  const to = rgb(primary);
+  const paints = backgrounds.map((hex) => luminance(rgb(hex)));
+  for (let percent = 0; percent <= 100; percent += 1) {
+    const channels = from.map((value, index) => Math.round(value + (to[index] - value) * percent / 100));
+    const ink = luminance(channels);
+    if (paints.every((paint) => (Math.max(ink, paint) + 0.05) / (Math.min(ink, paint) + 0.05) >= 4.5)) {
+      return `#${channels.map((byte) => byte.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+    }
+  }
+  return primary;
+}
+
+/** Match source-confirmed diff/code/Markdown previews to the effective palette. */
+function buildFilePreviewCss(state, { nativeDark = false, systemDark = nativeDark } = {}) {
+  if (!state || !Object.hasOwn(buildTokenOverrides(state), '--dsw-alias-bg-layer-1')) return '';
+  if (typeof nativeDark !== 'boolean') throw new TypeError('nativeDark must be a boolean');
+  const tokens = resolveTokenModes(state, systemDark);
+  const nativeMode = nativeDark ? 'dark' : 'light';
+  const mode = state.mode === 'light' || state.mode === 'dark' ? state.mode
+    : (state.mode === 'system' ? systemDark : nativeDark) ? 'dark' : 'light';
+  const primary = tokens['--dsw-alias-label-primary'][nativeMode];
+  const neutral = [tokens['--dsw-alias-bg-base'][nativeMode], tokens['--dsw-alias-bg-layer-1'][nativeMode]];
+  const diff = { ...PREVIEW_DIFF[mode] };
+  for (const kind of ['added', 'deleted']) {
+    diff[`${kind}-marker`] = readablePreviewInk(diff[`${kind}-marker`], primary, [diff[`${kind}-bg`], diff[`${kind}-gutter`]]);
+  }
+  const syntaxPaints = [...neutral, diff['added-bg'], diff['deleted-bg']];
+  const muted = readablePreviewInk(tokens['--dsw-alias-label-secondary'][nativeMode], primary, neutral);
+  const link = readablePreviewInk(mode === 'dark' ? '#7AAAFF' : '#4176E6', primary, neutral);
+  const diffScope = 'body [data-changes-hover-preview] [data-review-view],\nbody [data-changes-review] [data-review-view]';
+  const syntaxScope = `${diffScope},\nbody [data-code-preview],\nbody [data-document-markdown]`;
+  const diffPaint = Object.entries(diff).map(([name, value]) => `  --dsw-alias-file-diff-${name}: ${value} !important;`).join('\n');
+  const syntaxPaint = Object.entries(PREVIEW_SYNTAX[mode]).map(([name, seed]) => `  --shiki-token-${name}: ${readablePreviewInk(seed, primary, syntaxPaints)} !important;`).join('\n');
+  // FileDiff is shared by hover portals and Sidebar review, including wrapped
+  // and unwrapped split columns. Bind aliases on its body, not add/del rows:
+  // a split row's data-diff-line describes the pair, not each cell's kind.
+  // Context source becomes primary ink; only its line numbers/notes stay muted.
+  // CodeBlock spans keep their own Shiki classes and token distinctions.
+  // PDF/Office-to-PDF gets only the surrounding reading surface via inheritance;
+  // no rule paints a page, image, workbook or an authored document element.
+  return `${diffScope} {\n${diffPaint}\n  --dsw-alias-label-secondary: var(--dsw-alias-label-primary) !important;\n  --dsw-alias-label-tertiary: ${muted} !important;\n}\n${syntaxScope} {\n  --shiki-foreground: var(--dsw-alias-label-primary) !important;\n  --shiki-background: var(--dsw-alias-markdown-code-block) !important;\n${syntaxPaint}\n}\nbody [data-document-markdown] {\n  --dsw-alias-link: ${link} !important;\n}\nbody [data-textpreview-body]:has([data-pdf-preview]) {\n  --dsw-alias-bg-document-preview: var(--dsw-alias-bg-layer-2) !important;\n}`;
+}
+
+/** Rebind native navigation fills only at their source-confirmed owners. */
+function buildNavigationCss(state) {
+  if (!state || !Object.hasOwn(buildTokenOverrides(state), '--dsw-alias-bg-layer-1')) return '';
+  // SettingsGeneral's portaled settings panel uses separate active/hover fills
+  // in its direct nav child. Its labels already read the effective primary ink.
+  // Dockkit's docked active chip alone consumes markdown-tag; bind on the chip,
+  // not the sidebar or document body. Leave quiet chips and floating titles to
+  // their native transparent rules, and preserve icon hues and close behavior.
+  return `body [data-shortcut-modal="settings"] > nav {\n  --dsw-specific-sidebar-nav-item-active: var(--dsw-alias-bg-layer-1) !important;\n  --dsw-specific-sidebar-nav-item-hover: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 50%, transparent) !important;\n}\nbody [data-sidebar-right-panel] [data-dockkit-strip-tabs] > [data-dockkit-tab] {\n  --dsw-alias-markdown-tag: var(--dsw-alias-interactive-bg-active) !important;\n}`;
+}
+
+/** Pair only ChatView's history-page control with the effective palette. */
+function buildHistoryCss(state) {
+  if (!state || !Object.hasOwn(buildTokenOverrides(state), '--dsw-alias-bg-layer-1')) return '';
+  // DSH 0.2.1-rc.5 puts the history button in the direct wrapper immediately
+  // before the flow Slot anchor. Its native fill bypasses our neutral layer;
+  // secondary ink is too faint for this small command on some effective themes.
+  // Bind on that button alone, not on transcript rows or the shared aliases.
+  // Loading keeps the same button and native disabled opacity/cursor/handler.
+  const button = 'body [data-conversation-content] [data-chat-flow] > div:has(+ [data-slot="conversation.chat.flow"]) > button';
+  return `${button} {\n  --dsw-alias-interactive-bg-hover-solid: var(--dsw-alias-bg-layer-1) !important;\n  --dsw-alias-label-secondary: var(--dsw-alias-label-primary) !important;\n}\n${button}:hover:not(:disabled) {\n  --dsw-alias-interactive-bg-hover-solid: var(--dsw-alias-interactive-bg-hover) !important;\n}`;
+}
+
+/** Rebind the native question option badge without guessing its optional leaf. */
+function buildQuestionBadgeCss(state) {
+  if (!state || !Object.hasOwn(buildTokenOverrides(state), '--dsw-alias-bg-layer-1')) return '';
+  // DSH 0.2.1-rc.5 gives the badge no stable hook. Its optionLine owner has
+  // exactly these two badge-only consumers: label inherits ink, description
+  // reads label-tertiary, and the indicator/checkbox is outside this owner.
+  // A second leaf can be a description, so never paint that span directly.
+  // Keep the row's native selection, focus, disabled and submission behavior.
+  const line = 'body [data-question-key] > section > [data-question-scroll] > div:is([role="radiogroup"],[role="group"]) > button:is([role="radio"],[role="checkbox"]) > span:nth-child(2) > span';
+  // DSH 0.2.2-rc.1 inserts an option-row wrapper and exposes option-line.
+  // Prefer that stable owner for the new layout. The old direct-child chain
+  // remains a separate, bounded legacy adapter; neither paints a badge leaf,
+  // description, expand button, checkbox or selected-row background directly.
+  const currentLine = 'body [data-question-key] [data-option-row] > button:is([role="radio"],[role="checkbox"]) > span > [data-option-line]';
+  return `${line},\n${currentLine} {\n  --dsw-specific-sidebar-nav-item-active-accent: var(--dsw-alias-bg-layer-2) !important;\n  --dsw-alias-button-info-fill: var(--dsw-alias-label-primary) !important;\n}`;
 }
 
 function buildChromeCss(state) {
@@ -757,10 +913,11 @@ function createAppearancePlugin(React, dictionaries, assets = {}) {
         const nativeDark = theme.active.colorScheme === 'dark';
         const nativeBase = theme.active.tokens['--dsw-alias-bg-base'];
         const css = React.useMemo(() => state ? [
-          buildBackgroundCss(state, assets, { nativeDark, systemDark: dark, nativeBase }), buildChromeCss(state), buildComponentCss(state),
+          buildBackgroundCss(state, assets, { nativeDark, systemDark: dark, nativeBase }), buildChromeCss(state), buildComponentCss(state, { nativeDark, systemDark: dark }),
+          buildFilePreviewCss(state, { nativeDark, systemDark: dark }), buildNavigationCss(state), buildHistoryCss(state), buildQuestionBadgeCss(state),
         ].filter(Boolean).join('\n') : '', [state, nativeDark, dark, nativeBase]);
         return h(React.Fragment, null,
-          css && h('style', { 'data-dsha-background': '', 'data-dsha-version': '0.2.14' }, css),
+          css && h('style', { 'data-dsha-background': '', 'data-dsha-version': '0.2.18' }, css),
           preview && h(React.Fragment, null,
             h('style', null, PAGE_CSS),
             h('aside', { className: 'dsha-live-notice', 'aria-label': t('livePreviewTitle') },
@@ -820,7 +977,7 @@ function createAppearancePlugin(React, dictionaries, assets = {}) {
           h('span', { className: 'dsha-theme-thumb', 'aria-hidden': true }, h(ThemePreview, { variant: 'thumbnail', state: cardState, assets, t, nativeDark, systemDark, nativeBase, nativeTokens })),
           h('span', { className: 'dsha-card-name' }, name));
         }
-        return h('section', { className: 'dsha-panel', 'data-dsha-version': '0.2.14', 'aria-label': t('title'), 'aria-busy': busy },
+        return h('section', { className: 'dsha-panel', 'data-dsha-version': '0.2.18', 'aria-label': t('title'), 'aria-busy': busy },
           h('style', null, PAGE_CSS),
           h('div', { className: 'dsha-content' },
             h(ThemePreview, { variant: 'stage', state, assets, t, nativeDark, systemDark, nativeBase, nativeTokens, badge }),
@@ -840,7 +997,7 @@ function createAppearancePlugin(React, dictionaries, assets = {}) {
       }
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: NS }, AppearancePage));
       ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: NS, order: 20, label: () => translate('title') }, PaletteIcon));
-      ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: `${NS}-visual-0.2.14` }, VisualLayer));
+      ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: `${NS}-visual-0.2.18-chat-controls` }, VisualLayer));
     },
   };
 }
