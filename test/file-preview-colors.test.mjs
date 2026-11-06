@@ -45,9 +45,9 @@ const EXPECTED = {
   },
   forest: {
     light: {
-      markers: ['#157E3F', '#BA2723'],
-      syntax: ['#236EAB', '#317841', '#606C6D', '#BC3664', '#A7521E', '#6741D9', '#2D783E', '#495057', '#1C6CB3'],
-      muted: '#66756C', link: '#3F6ECB',
+      markers: ['#0F7E3C', '#BA2723'],
+      syntax: ['#1F6EAD', '#2D783D', '#5F6C6C', '#BE3464', '#AB5018', '#6741D9', '#2B783B', '#495057', '#1A6CB5'],
+      muted: '#586D60', link: '#3E6ECD',
     },
     dark: { markers: ['#41C977', '#F8534F'], syntax: SYNTAX_SEEDS.dark, muted: '#A6B6AB', link: '#7AAAFF' },
   },
@@ -257,13 +257,14 @@ test('fixed adjacent 1% boundary fixtures reject under-adjustment, overshoot and
   // These are fixed observations, not a second interpolation/search implementation.
   const boundaries = [
     ['original', 'light', 'syntax', 'constant', 19, '#1E6DB4', '#1E6CB3'],
-    ['forest', 'light', 'marker', 'added', 38, '#147F3F', '#157E3F'],
+    ['forest', 'light', 'marker', 'added', 35, '#0F7F3C', '#0F7E3C'],
     ['sea', 'light', 'syntax', 'comment', 38, '#606D78', '#5F6C77'],
     ['sand', 'light', 'syntax', 'parameter', 33, '#B14D16', '#AF4D16'],
     ['original', 'light', 'muted', '', 19, '#777777', '#767676'],
-    ['forest', 'light', 'muted', '', 26, '#66766C', '#66756C'],
+    // B palette's forest secondary seed is already readable (covered above);
+    // it no longer has a failing-to-passing interpolation boundary.
     ['original', 'light', 'link', '', 4, '#4073DE', '#4072DC'],
-    ['forest', 'light', 'link', '', 15, '#3F6FCD', '#3F6ECB'],
+    ['forest', 'light', 'link', '', 13, '#3E6FCF', '#3E6ECD'],
     ['sea', 'light', 'link', '', 12, '#3D6FD3', '#3D6ED1'],
     ['sand', 'light', 'link', '', 11, '#416FD1', '#416ECF'],
     ['original', 'dark', 'marker', 'deleted', 9, '#F9514E', '#F9534F'],

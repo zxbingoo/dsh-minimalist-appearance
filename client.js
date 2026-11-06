@@ -174,7 +174,7 @@ const BASE_PALETTE = freezePalette({
 const PALETTES = Object.freeze({
   forest: freezePalette({
     base: '#F5F8F5', sidebar: '#E5EDE6', surface: '#FFFFFF', nested: '#D3E2D1',
-    border: '#CAD9CD', text: '#34453D', secondary: '#78877D', accent: '#3D8057',
+    border: '#CAD9CD', text: '#293D33', secondary: '#586D60', accent: '#3D8057',
   }, {
     base: '#151D19', sidebar: '#1B2921', surface: '#202E26', nested: '#27372D',
     border: '#384C40', text: '#E6EEE8', secondary: '#A6B6AB', accent: '#76B891',
