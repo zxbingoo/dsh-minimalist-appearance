@@ -88,7 +88,7 @@ test('material samples and conversation CSS share exactly the same background pa
       const style = backgroundStyle(state, assets);
       assert.deepEqual(style, {
         backgroundImage: backgroundImage(state, assets),
-        backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover', backgroundPosition: background === 'forest' ? 'center bottom' : 'center', backgroundRepeat: 'no-repeat',
       });
       assert.ok(style.backgroundImage.includes(`${fade}%, transparent)`));
       const css = buildBackgroundCss(state, assets);
@@ -485,7 +485,7 @@ test('material paint retains the full bundled PNG at all fades even beyond Blink
     assert.ok(material.backgroundImage.endsWith(`url(${JSON.stringify(url)})`));
     assert.doesNotMatch(material.backgroundImage, /\b(?:var|env|attr)\s*\(/i, 'variable-based colors stay in separate small declarations');
     assert.equal(material.backgroundSize, 'cover');
-    assert.equal(material.backgroundPosition, 'center');
+    assert.equal(material.backgroundPosition, 'center bottom');
     assert.equal(material.backgroundRepeat, 'no-repeat');
   }
 });

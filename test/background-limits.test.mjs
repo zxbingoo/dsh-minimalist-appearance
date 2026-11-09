@@ -21,7 +21,7 @@ function assertLargePaint(state, assets, url, environment, base) {
   const style = backgroundStyle(state, assets, environment);
   assert.ok(style.backgroundImage === paint, 'material sample uses the same paint');
   assert.equal(style.backgroundSize, 'cover');
-  assert.equal(style.backgroundPosition, 'center');
+  assert.equal(style.backgroundPosition, state.background === 'forest' ? 'center bottom' : 'center');
   const css = buildBackgroundCss(state, assets, environment);
   assert.ok(css.includes(`background-image: ${paint} !important;`), 'conversation uses the identical paint');
   assert.doesNotMatch(css, /\b(?:var|env|attr)\s*\(/i);

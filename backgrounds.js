@@ -61,7 +61,10 @@ export function backgroundStyle(state, assets = {}, environment = {}) {
   return {
     backgroundImage: backgroundImage(state, assets, environment),
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    // Anchor the bundled Green landscape at the lower edge so wide-screen
+    // cover cropping removes sky, not the approved foreground flower border.
+    // Other built-ins and user uploads retain their original centered framing.
+    backgroundPosition: state?.background === 'forest' ? 'center bottom' : 'center',
     backgroundRepeat: 'no-repeat',
   };
 }
