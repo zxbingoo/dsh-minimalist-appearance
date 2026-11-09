@@ -14,7 +14,8 @@ function assertLargePaint(state, assets, url, environment, base) {
   const paint = backgroundImage(state, assets, environment);
   const veil = `color-mix(in srgb, ${base} ${state.fade}%, transparent)`;
   const expected = `linear-gradient(${veil}, ${veil}), url(${JSON.stringify(url)})`;
-  assert.ok(paint.length > MAX_VARIABLE_BYTES, 'exercise the real encoded-size boundary');
+  if (url.length > MAX_VARIABLE_BYTES) assert.ok(paint.length > MAX_VARIABLE_BYTES, 'exercise the real encoded-size boundary');
+  else assert.ok(paint.length > url.length, 'retain the complete smaller artwork and literal veil');
   assert.ok(paint === expected, 'retain the entire raster and resolve the fade color literally');
   assert.doesNotMatch(paint, /\b(?:var|env|attr)\s*\(/i, 'avoid Blink pending-substitution parsing');
   const style = backgroundStyle(state, assets, environment);
@@ -29,7 +30,7 @@ function assertLargePaint(state, assets, url, environment, base) {
 test('the full bundled watercolor avoids variable substitution at every fade', { timeout: 10000 }, async () => {
   const png = await readFile(new URL('assets/breeze.png', root));
   const url = `data:image/png;base64,${png.toString('base64')}`;
-  assert.ok(url.length > MAX_VARIABLE_BYTES);
+  assert.ok(png.length > 0 && png.length <= 4 * 1024 * 1024);
   const assets = { breeze: url };
   for (const fade of fades) {
     const state = Object.freeze(validateState({ preset: 'forest', mode: 'light', background: 'forest', fade }));

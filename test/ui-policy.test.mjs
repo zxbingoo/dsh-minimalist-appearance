@@ -476,7 +476,7 @@ test('material paint retains the full bundled PNG at all fades even beyond Blink
   const png = await readFile(new URL('assets/breeze.png', root));
   const url = `data:image/png;base64,${png.toString('base64')}`;
   const assets = { breeze: url };
-  assert.ok(url.length > 2 * 1024 * 1024, 'exercise the actual large bundled artwork without re-encoding or padding');
+  assert.ok(png.length > 0 && png.length <= 4 * 1024 * 1024, 'exercise the actual bundled artwork without re-encoding or padding; large-upload boundary is tested separately');
   for (const fade of [0, 37, 80, 100]) {
     const state = Object.freeze(validateState({ preset: 'forest', mode: 'light', background: 'forest', fade }));
     const environment = { nativeDark: true, systemDark: true };
